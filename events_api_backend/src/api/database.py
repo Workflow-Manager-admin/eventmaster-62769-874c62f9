@@ -7,9 +7,8 @@ from .models import (
     EventCreate,
     EventUpdate,
     EventResponse,
-    EventQuery
+    EventQuery,
 )
-
 
 
 class InMemoryDB:
@@ -86,7 +85,6 @@ class InMemoryDB:
     # PUBLIC_INTERFACE
     def delete_user(self, user_id: int) -> bool:
         if user_id in self.users:
-            # Delete all events by this user
             to_delete = [
                 eid
                 for eid, edict in self.events.items()
@@ -154,10 +152,8 @@ class InMemoryDB:
                 results = [ev for ev in results if ev['start_time'] >= query.date_from]
             if query.date_to:
                 results = [ev for ev in results if ev['end_time'] <= query.date_to]
-            if query.created_by:
-                results = [
-                    ev for ev in results if ev['creator_id'] == query.created_by
-                ]
+            if query.created_by is not None:
+                results = [ev for ev in results if ev['creator_id'] == query.created_by]
         return [EventResponse(**ev) for ev in results]
 
     # PUBLIC_INTERFACE
@@ -167,6 +163,5 @@ class InMemoryDB:
             return True
         return False
 
+
 db = InMemoryDB()
-
-

@@ -4,6 +4,15 @@ from pydantic import BaseModel, Field, EmailStr
 
 
 # PUBLIC_INTERFACE
+
+
+class EventCreateWithCreator(BaseModel):
+    """Model for event creation, including creator_id at root level for OpenAPI safety."""
+    event: "EventCreate" = Field(..., description="Event details (title, dates, etc.)")
+    creator_id: int = Field(..., description="ID of the user creating the event")
+
+# PUBLIC_INTERFACE
+
 class UserBase(BaseModel):
     """Base model for a user."""
     username: str = Field(..., description="Unique username for the user")

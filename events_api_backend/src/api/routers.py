@@ -1,14 +1,14 @@
-from fastapi import APIRouter, HTTPException, Path, Query, Body, status
+from fastapi import APIRouter, HTTPException, Path, Query, status
 from typing import List, Optional
 from .models import (
     UserCreate,
     UserUpdate,
     UserResponse,
-    EventCreate,
     EventUpdate,
     EventResponse,
     EventQuery,
-    Message
+    Message,
+    EventCreateWithCreator
 )
 from .database import db
 
@@ -107,15 +107,24 @@ def delete_user(user_id: int):
     response_model=EventResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a new event",
-    description="Create a new event. The `creator_id` must be a valid user.",
+    description=(
+        "Create a new event. The body must include both the event details and a creator_id, "
+        'e.g. {"event": { ... }, "creator_id": 123}. This prevents OpenAPI generation errors.'
+    ),
     tags=["Events"],
 )
 # PUBLIC_INTERFACE
-def create_event(
-    event: EventCreate,
-    creator_id: int = Body(..., embed=True, description="ID of the user creating the event"),
-):
-    created_event = db.create_event(event, creator_id=creator_id)
+def create_event(payload: EventCreateWithCreator):
+    """
+    Create a new event.
+
+    Args:
+        payload (EventCreateWithCreator): {"event": EventCreateFields, "creator_id": int}
+
+    Returns:
+        EventResponse: Details for the created event.
+    """
+    created_event = db.create_event(payload.event, creator_id=payload.creator_id)
     if not created_event:
         raise HTTPException(status_code=404, detail="Creator user not found")
     return created_event
