@@ -13,6 +13,7 @@ class EventCreateWithCreator(BaseModel):
 
 # PUBLIC_INTERFACE
 
+
 class UserBase(BaseModel):
     """Base model for a user."""
     username: str = Field(..., description="Unique username for the user")
@@ -108,3 +109,7 @@ class EventQuery(BaseModel):
 class Message(BaseModel):
     """Basic message model for API responses."""
     message: str
+
+
+# Fix OpenAPI schema generation by updating forward refs for any string-annotated models
+EventCreateWithCreator.update_forward_refs()
